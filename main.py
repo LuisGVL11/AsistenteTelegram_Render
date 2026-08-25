@@ -1578,6 +1578,10 @@ def main():
 
     # Mensaje para indicar en la consola que el programa
     # está comenzando.
+    #
+    # En "plastilina":
+    # simplemente nos avisa que Python está intentando
+    # arrancar nuestro bot.
     print("Iniciando bot...")
 
 
@@ -1609,6 +1613,9 @@ def main():
     # Le indicamos al bot:
     #
     # "Si alguien escribe /start, ejecuta la función start".
+    #
+    # De esta manera Telegram sabe qué función debe ejecutarse
+    # cuando el usuario utilice este comando.
     app.add_handler(
         CommandHandler(
             "start",
@@ -1650,6 +1657,9 @@ def main():
 
     # Registra el comando /evento y hace que ejecute
     # crear_evento_prueba().
+    #
+    # Esta función actualmente solamente informa que
+    # el comando de prueba ya no es necesario.
     app.add_handler(
         CommandHandler(
             "evento",
@@ -1659,28 +1669,121 @@ def main():
 
 
     # Mensaje informativo en la consola.
+    #
+    # Si vemos este mensaje, significa que la aplicación
+    # de Telegram ya fue construida y sus manejadores
+    # fueron registrados.
     print("🤖 Bot iniciado...")
 
 
     # ========================================================
-    # INICIAR BOT
+    # OBTENER PUERTO DE RENDER
     # ========================================================
 
-    # run_polling() inicia el bot y hace que Python consulte
-    # continuamente a Telegram para saber si llegaron nuevos
-    # mensajes.
+    # Cuando el programa se ejecute en Render, Render le
+    # proporciona automáticamente una variable llamada PORT.
     #
-    # En palabras sencillas:
+    # Esa variable indica el puerto por el cual nuestro
+    # programa debe recibir las conexiones.
     #
-    # es como si el bot estuviera diciendo constantemente:
+    # En "plastilina":
     #
-    # "¿Llegó algún mensaje?"
-    # "¿Llegó algún mensaje?"
-    # "¿Llegó algún mensaje?"
+    # Render básicamente nos dice:
     #
-    # Mientras este proceso esté ejecutándose, el bot
-    # permanece activo.
-    app.run_polling()
+    # "Tu programa debe escuchar por esta puerta".
+    #
+    # int() convierte el texto recibido en un número.
+    #
+    # Si PORT no existe, utilizamos 10000 como valor
+    # predeterminado.
+    port = int(
+        os.getenv(
+            "PORT",
+            "10000"
+        )
+    )
+
+
+    # ========================================================
+    # OBTENER URL PÚBLICA DE RENDER
+    # ========================================================
+
+    # Render proporciona automáticamente una variable llamada
+    # RENDER_EXTERNAL_URL con la dirección pública del servicio.
+    #
+    # Por ejemplo, podría ser algo parecido a:
+    #
+    # https://asistente-telegram.onrender.com
+    #
+    # En "plastilina":
+    #
+    # esta es la dirección de Internet por la que Telegram
+    # podrá encontrar nuestro bot.
+    render_url = os.getenv(
+        "RENDER_EXTERNAL_URL"
+    )
+
+
+    # ========================================================
+    # COMPROBAR URL DE RENDER
+    # ========================================================
+
+    # Si por alguna razón Render no proporciona la URL,
+    # detenemos el programa y mostramos un error.
+    #
+    # Esto evita intentar configurar un webhook con una
+    # dirección inexistente.
+    if not render_url:
+
+        raise ValueError(
+            "No se encontró RENDER_EXTERNAL_URL"
+        )
+
+
+    # ========================================================
+    # INICIAR BOT CON WEBHOOK
+    # ========================================================
+
+    # Antes utilizábamos:
+    #
+    # app.run_polling()
+    #
+    # Polling significa que nuestro programa preguntaba
+    # constantemente a Telegram si había mensajes nuevos.
+    #
+    # Ahora utilizaremos WEBHOOK.
+    #
+    # Con webhook ocurre lo contrario:
+    #
+    # Telegram recibe un mensaje del usuario y se lo envía
+    # directamente a nuestro servidor.
+    #
+    # listen="0.0.0.0":
+    # permite que el servidor escuche conexiones externas.
+    #
+    # port=port:
+    # utiliza el puerto que Render nos proporcionó.
+    #
+    # webhook_url:
+    # indica a Telegram la dirección donde debe enviar
+    # los mensajes.
+    #
+    # Por ejemplo:
+    #
+    # https://asistente-telegram.onrender.com/telegram
+    #
+    # En "plastilina":
+    #
+    # estamos diciéndole al bot:
+    #
+    # "Quédate escuchando en esta puerta de Render
+    # y dile a Telegram que cuando alguien te escriba,
+    # te mande el mensaje aquí".
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        webhook_url=f"{render_url}/telegram"
+    )
 
 
 # ============================================================
