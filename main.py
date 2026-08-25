@@ -1703,6 +1703,9 @@ def main():
         )
     )
 
+    print("RENDER_EXTERNAL_URL:", os.getenv("RENDER_EXTERNAL_URL"))
+    print("PORT:", os.getenv("PORT"))
+
 
     # ========================================================
     # OBTENER URL PÚBLICA DE RENDER
