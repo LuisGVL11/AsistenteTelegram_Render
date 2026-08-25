@@ -1785,6 +1785,7 @@ def main():
     app.run_webhook(
         listen="0.0.0.0",
         port=port,
+        url_path="telegram",
         webhook_url=f"{render_url}/telegram"
     )
 
